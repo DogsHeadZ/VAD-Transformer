@@ -53,6 +53,7 @@ class ROIBoxHead(torch.nn.Module):
             result = self.post_processor((class_logits, box_regression), proposals, feats)
             inds = result[0].get_field("inds")
             feats = feats[inds]
+            x = x[inds]
             return x, result, {}, feats
 
         loss_classifier, loss_box_reg = self.loss_evaluator(

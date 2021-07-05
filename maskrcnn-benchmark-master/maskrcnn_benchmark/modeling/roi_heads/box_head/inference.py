@@ -117,22 +117,20 @@ class PostProcessor(nn.Module):
         # Apply threshold on detection probabilities and apply NMS
         # Skip j = 0, because it's the background class
         inds_all = scores > self.score_thresh
-        print(inds_all.shape)
+
         for j in range(1, num_classes):
             inds = inds_all[:, j].nonzero().squeeze(1)
             scores_j = scores[inds, j]
             boxes_j = boxes[inds, j * 4 : (j + 1) * 4]
             boxlist_for_class = BoxList(boxes_j, boxlist.size, mode="xyxy")
-            print(boxlist_for_class)
+
             boxlist_for_class.add_field("scores", scores_j)
             boxlist_for_class = boxlist_nms(
                 boxlist_for_class, self.nms
             )
-            print(boxlist_for_class)
 
             num_labels = len(boxlist_for_class)
-            print(num_labels)
-            print('====================')
+
             boxlist_for_class.add_field(
                 "labels", torch.full((num_labels,), j, dtype=torch.int64, device=device)
             )
@@ -140,7 +138,7 @@ class PostProcessor(nn.Module):
 
         result = cat_boxlist(result)
         number_of_detections = len(result)
-        print(result)
+
         # Limit to max_per_image detections **over all classes**
         if number_of_detections > self.detections_per_img > 0:
             cls_scores = result.get_field("scores")

@@ -20,6 +20,7 @@ class BoxList(object):
         device = bbox.device if isinstance(bbox, torch.Tensor) else torch.device("cpu")
         bbox = torch.as_tensor(bbox, dtype=torch.float32, device=device)
         if bbox.ndimension() != 2:
+
             raise ValueError(
                 "bbox should have 2 dimensions, got {}".format(bbox.ndimension())
             )

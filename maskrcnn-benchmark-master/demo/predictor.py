@@ -207,7 +207,8 @@ class COCODemo(object):
                 the BoxList via `prediction.fields()`
         """
         predictions, feats = self.compute_prediction(image)
-        top_predictions, feats = self.select_top_predictions(predictions, feats)
+
+        top_predictions = self.select_top_predictions(predictions)
         result = image.copy()
         if self.show_mask_heatmaps:
             return self.create_mask_montage(result, top_predictions)
@@ -216,9 +217,10 @@ class COCODemo(object):
             result = self.overlay_mask(result, top_predictions)
         if self.cfg.MODEL.KEYPOINT_ON:
             result = self.overlay_keypoints(result, top_predictions)
+
         result = self.overlay_class_names(result, top_predictions)
 
-        return result, feats
+        return result, feats, top_predictions.bbox
 
     def compute_prediction(self, original_image):
         """
@@ -258,7 +260,7 @@ class COCODemo(object):
             prediction.add_field("mask", masks)
         return prediction, feats
 
-    def select_top_predictions(self, predictions, feats):
+    def select_top_predictions(self, predictions):
         """
         Select only predictions which have a `score` > self.confidence_threshold,
         and returns the predictions in descending order of score
@@ -277,7 +279,7 @@ class COCODemo(object):
         predictions = predictions[keep]
         scores = predictions.get_field("scores")
         _, idx = scores.sort(0, descending=True)
-        return predictions[idx], feats[idx]
+        return predictions[idx]
 
     def compute_colors_for_labels(self, labels):
         """
@@ -401,7 +403,7 @@ class COCODemo(object):
             x, y = box[:2]
             s = template.format(label, score)
             cv2.putText(
-                image, s, (x, y), cv2.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1
+                image, s, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1
             )
 
         return image

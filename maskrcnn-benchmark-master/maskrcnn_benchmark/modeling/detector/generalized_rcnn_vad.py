@@ -62,4 +62,4 @@ class GeneralizedRCNNVad(nn.Module):
             losses.update(proposal_losses)
             return losses
 
-        return result, feats
+        return result, feats, x
